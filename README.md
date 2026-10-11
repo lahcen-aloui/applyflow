@@ -2,7 +2,9 @@
 
 A browser-local workspace for tracking job applications and the next step for each opportunity.
 
-Desktop and mobile screenshots will be captured from the running app by browser CI after its workflows pass, then added to `docs/screenshots/`.
+![ApplyFlow desktop application board](docs/screenshots/desktop.png)
+
+[View the mobile screenshot](docs/screenshots/mobile.png). Both images were captured from the running app by the passing browser CI workflow.
 
 ## What it does
 
@@ -39,7 +41,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-GitHub Actions runs lint, strict type checking, unit tests, the production build, and a separate Chromium browser job. Local lint, type checks, unit tests, and builds passed. The local shell could not run Playwright's CLI browser in the restricted development environment; connected-browser verification and any remaining limits are described below. CI results are not claimed before its first run.
+The [verified CI run](https://github.com/lahcen-aloui/applyflow/actions/runs/38146725554) passed lint, strict type checking, all 48 unit tests, the production build, and all 22 browser cases across desktop Chrome and Pixel 7. The desktop and mobile screenshots above come from that run.
 
 ## Stack and structure
 
@@ -55,9 +57,9 @@ Saving requires a browser supporting [Web Locks](https://developer.mozilla.org/e
 
 The blue/slate board stacks stages on mobile and does not depend on dragging. Deadlines are normalized calendar-date strings, compared as local dates and formatted without UTC conversion. An open tab refreshes today at local midnight and when visibility changes, while keeping search and stage filters. Required fields are trimmed, calendar dates are checked, and saved application fields are decoded before rendering.
 
-Unit tests cover guarded concurrent writes, failed-save retry snapshots, explicit reload/reset recovery, and validation, combined filters, stage movement/counts, local-day deadline ordering, storage shape validation, and storage failures. Earlier connected-browser checks covered application and recovery workflows at desktop and mobile sizes before the final concurrency changes. Browser execution of the updated source is pending GitHub CI; local Playwright discovery does not establish runtime acceptance.
+Unit tests cover guarded concurrent writes, failed-save retry snapshots, explicit reload/reset recovery, validation, combined filters, stage movement/counts, local-day deadline ordering, storage shape validation, storage failures, and dialog focus and keyboard boundaries. Pending application saves disable editing and dismissal; failed saves preserve the draft and restore the controls.
 
-The browser suite retains the original desktop/mobile flows and actual screenshot capture. It now also checks two pages in the same context/origin for stale updates, deletion/reset, queued writes, failed-save retries, draft preservation, and corrupt data; dialog initial focus, focus containment, Escape dismissal and return focus; recovered writes followed by reload; and absence of application runtime errors on every page. These new browser assertions and all six screenshot inspections remain CI acceptance gates; no fresh screenshots are claimed here.
+The passing browser suite checks application flows and actual screenshot capture on desktop and mobile. It also checks two pages in the same context/origin for stale updates, deletion/reset, queued writes, failed-save retries, draft preservation, and corrupt data; dialog initial focus, focus containment, Escape dismissal and return focus; recovered writes followed by reload; and absence of application runtime errors on every page. Both captured images were inspected for layout, clipping, and overflow.
 
 ## Dependency audit
 
@@ -67,7 +69,7 @@ The latest audit found no production dependency vulnerabilities. One unpatched d
 
 Built with AI assistance for implementation, tests, and documentation. The source and limitations are documented here; this project makes no claim about production usage or business results.
 
-## More projects
+## Author
 
 By [Lahcen Aloui](https://github.com/lahcen-aloui).
 
