@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { en } from "@/locales/en";
 
-interface ModalProps { title: string; description: string; children: ReactNode; onClose: () => void; busy?: boolean }
+interface ModalProps { title: string; description: string; children: ReactNode; onClose: () => void; initialFocus: RefObject<HTMLElement | null>; busy?: boolean }
 
-export function Modal({ title, description, children, onClose, busy = false }: ModalProps) {
+export function Modal({ title, description, children, onClose, initialFocus, busy = false }: ModalProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const element = dialog.current;
     element?.showModal();
+    initialFocus.current?.focus();
     return () => { element?.close(); previousFocus?.focus(); };
-  }, []);
+  }, [initialFocus]);
   return (
     <dialog ref={dialog} className="modal" aria-labelledby="modal-title" aria-describedby="modal-description" onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}>
       <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: "1rem" }}>
@@ -28,9 +29,10 @@ export function Modal({ title, description, children, onClose, busy = false }: M
 interface ConfirmProps { title: string; description: string; action: string; onClose: () => void; onConfirm: () => void }
 
 export function Confirmation({ title, description, action, onClose, onConfirm }: ConfirmProps) {
-  return <Modal title={title} description={description} onClose={onClose}>
+  const cancel = useRef<HTMLButtonElement>(null);
+  return <Modal title={title} description={description} onClose={onClose} initialFocus={cancel}>
     <div className="form-actions">
-      <button type="button" className="button secondary" autoFocus onClick={onClose}>{en.workspace.cancel}</button>
+      <button ref={cancel} type="button" className="button secondary" onClick={onClose}>{en.workspace.cancel}</button>
       <button type="button" className="button danger" onClick={onConfirm}>{action}</button>
     </div>
   </Modal>;

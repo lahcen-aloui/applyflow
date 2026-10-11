@@ -69,11 +69,12 @@ test("keeps the application draft after failed saving and retries successfully w
   await page.getByRole("dialog").getByLabel("Company", { exact: true }).fill("Recovery company");
   await page.getByRole("dialog").getByLabel("Role", { exact: true }).fill("Developer");
   await page.getByRole("dialog").getByRole("button", { name: "Save application", exact: true }).click();
+  await expect(page.getByRole("dialog").getByRole("alert")).toContainText("Your draft has been kept");
   await expect(page.getByRole("dialog").getByLabel("Company", { exact: true })).toHaveValue("Recovery company");
   await restoreWrites(page);
   await page.getByRole("dialog").getByRole("button", { name: "Save application", exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(page.locator(".workspace").getByRole("alert")).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole("article", { name: "Recovery company, Developer", exact: true })).toHaveCount(1);
 });

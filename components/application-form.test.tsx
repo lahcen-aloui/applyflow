@@ -72,6 +72,7 @@ it("unlocks the same draft after a queued save fails and successfully retries it
   expect(localStorage.getItem(storageKey)).toBe('{"version":1,"applications":[]}');
   failure.mockRestore(); await submit();
   expect(host.querySelector("dialog")).toBeNull();
+  expect(host.querySelectorAll('[role="alert"]')).toHaveLength(0);
   const value: unknown = JSON.parse(localStorage.getItem(storageKey) ?? "null");
   expect(decodeApplications(value)?.applications).toHaveLength(1);
 });

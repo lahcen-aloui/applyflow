@@ -11,6 +11,7 @@ export function ApplicationForm({ application, onSave, onClose }: ApplicationFor
   const [value, setValue] = useState<Application>(application ?? { id: "", company: "", role: "", url: "", stage: "applied", deadline: "", notes: "" });
   const [saving, setSaving] = useState(false);
   const submitting = useRef(false);
+  const company = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const update = (field: "company" | "role" | "url" | "deadline" | "notes", next: string) => {
     if (submitting.current) return;
@@ -33,12 +34,12 @@ export function ApplicationForm({ application, onSave, onClose }: ApplicationFor
       submitting.current = false; setSaving(false);
     }
   }
-  return <Modal title={application ? en.form.editTitle : en.form.addTitle} description={en.form.description} busy={saving} onClose={close}>
+  return <Modal title={application ? en.form.editTitle : en.form.addTitle} description={en.form.description} busy={saving} onClose={close} initialFocus={company}>
     <form onSubmit={event => { void submit(event); }} aria-busy={saving} noValidate>
       {error && <p role="alert" className="error-box">{error}</p>}
       <fieldset disabled={saving} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
       <div className="form-grid">
-        <label htmlFor="company">{en.form.company}<input id="company" autoFocus required value={value.company} placeholder={en.form.companyPlaceholder} onChange={(event) => update("company", event.target.value)} /></label>
+        <label htmlFor="company">{en.form.company}<input ref={company} id="company" required value={value.company} placeholder={en.form.companyPlaceholder} onChange={(event) => update("company", event.target.value)} /></label>
         <label htmlFor="role">{en.form.role}<input id="role" required value={value.role} placeholder={en.form.rolePlaceholder} onChange={(event) => update("role", event.target.value)} /></label>
         <label className="full-width" htmlFor="url">{en.form.url} <span className="optional">({en.workspace.optional})</span><input id="url" type="url" value={value.url} placeholder={en.form.urlPlaceholder} onChange={(event) => update("url", event.target.value)} /></label>
         <label htmlFor="stage">{en.form.stage}<select id="stage" value={value.stage} onChange={(event) => { if (!submitting.current && isStage(event.target.value)) setValue({ ...value, stage: event.target.value }); }}>{stages.map((stage) => <option key={stage} value={stage}>{en.stages[stage]}</option>)}</select></label>
