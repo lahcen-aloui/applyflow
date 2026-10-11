@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 import { en } from "@/locales/en";
 
 interface ModalProps { title: string; description: string; children: ReactNode; onClose: () => void; initialFocus: RefObject<HTMLElement | null>; busy?: boolean }
@@ -14,8 +14,22 @@ export function Modal({ title, description, children, onClose, initialFocus, bus
     initialFocus.current?.focus();
     return () => { element?.close(); previousFocus?.focus(); };
   }, [initialFocus]);
+  function containFocus(event: KeyboardEvent<HTMLDialogElement>) {
+    if (event.key !== "Tab" || event.altKey || event.ctrlKey || event.metaKey) return;
+    const element = event.currentTarget;
+    const controls = [...element.querySelectorAll<HTMLElement>("button, input, select, textarea, a[href], [tabindex]")]
+      .filter(control => control.tabIndex >= 0 && !control.matches(":disabled") && !control.closest("[hidden]"));
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (!first || !last) { event.preventDefault(); element.focus(); return; }
+    const active = document.activeElement;
+    if (active === element || !element.contains(active) || (event.shiftKey ? active === first : active === last)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    }
+  }
   return (
-    <dialog ref={dialog} className="modal" aria-labelledby="modal-title" aria-describedby="modal-description" onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}>
+    <dialog ref={dialog} className="modal" aria-labelledby="modal-title" aria-describedby="modal-description" onKeyDown={containFocus} onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}>
       <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: "1rem" }}>
         <h2 id="modal-title" style={{ margin: 0 }}>{title}</h2>
         <button type="button" className="icon-button" aria-label={en.workspace.close} disabled={busy} onClick={onClose}>×</button>
